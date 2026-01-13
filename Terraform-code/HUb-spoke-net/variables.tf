@@ -82,3 +82,47 @@ variable "ssh_public_key_path" {
   description = "Path to SSH public key"
   type        = string
 }
+
+# VPN Gateway Variables
+variable "gateway_subnet_address_prefix" {
+  description = "Address prefix for Gateway Subnet"
+  type        = list(string)
+}
+
+variable "vpn_gateway_name" {
+  description = "Name of the VPN Gateway"
+  type        = string
+}
+
+variable "vpn_gateway_pip_name" {
+  description = "Name of the VPN Gateway Public IP"
+  type        = string
+}
+
+variable "vpn_gateway_sku" {
+  description = "SKU for VPN Gateway (Basic, VpnGw1, VpnGw2, VpnGw3, VpnGw1AZ, VpnGw2AZ, VpnGw3AZ)"
+  type        = string
+  default     = "VpnGw1"
+}
+
+variable "vpn_client_address_space" {
+  description = "Address space for VPN clients (Point-to-Site)"
+  type        = list(string)
+}
+
+variable "vpn_root_certificate_name" {
+  description = "Name of the root certificate for VPN"
+  type        = string
+}
+
+variable "vpn_root_certificate_data" {
+  description = "Public certificate data (base64 encoded, without BEGIN/END CERTIFICATE headers)"
+  type        = string
+  sensitive   = true
+}
+
+variable "vpn_client_protocols" {
+  description = "VPN client protocols (OpenVPN, IkeV2)"
+  type        = list(string)
+  default     = ["OpenVPN", "IkeV2"]
+}

@@ -85,13 +85,13 @@ resource "azurerm_network_security_group" "nsg1" {
   resource_group_name = azurerm_resource_group.rg.name
 
   security_rule {
-    name                       = "AllowRDP"
+    name                       = "AllowSSH"
     priority                   = 1000
     direction                  = "Inbound"
     access                     = "Allow"
     protocol                   = "Tcp"
     source_port_range          = "*"
-    destination_port_range     = "3389"
+    destination_port_range     = "22"
     source_address_prefix      = "*"
     destination_address_prefix = "*"
   }
@@ -116,13 +116,13 @@ resource "azurerm_network_security_group" "nsg2" {
   resource_group_name = azurerm_resource_group.rg.name
 
   security_rule {
-    name                       = "AllowRDP"
+    name                       = "AllowSSH"
     priority                   = 1000
     direction                  = "Inbound"
     access                     = "Allow"
     protocol                   = "Tcp"
     source_port_range          = "*"
-    destination_port_range     = "3389"
+    destination_port_range     = "22"
     source_address_prefix      = "*"
     destination_address_prefix = "*"
   }
@@ -199,16 +199,21 @@ resource "azurerm_network_interface_security_group_association" "vm02_nsg_assoc"
 }
 
 # Virtual Machine 01 (Spoke 1)
-resource "azurerm_windows_virtual_machine" "vm01" {
+resource "azurerm_linux_virtual_machine" "vm01" {
   name                = var.vm01_name
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
   size                = var.vm_size
   admin_username      = var.admin_username
-  admin_password      = var.admin_password
+  disable_password_authentication = true
   network_interface_ids = [
     azurerm_network_interface.vm01_nic.id,
   ]
+
+  admin_ssh_key {
+    username   = var.admin_username
+    public_key = file(var.admin_ssh_public_key_path)
+  }
 
   os_disk {
     caching              = "ReadWrite"
@@ -216,24 +221,29 @@ resource "azurerm_windows_virtual_machine" "vm01" {
   }
 
   source_image_reference {
-    publisher = "MicrosoftWindowsServer"
-    offer     = "WindowsServer"
-    sku       = "2019-Datacenter"
+    publisher = "Canonical"
+    offer     = "0001-com-ubuntu-server-jammy"
+    sku       = "22_04-lts-gen2"
     version   = "latest"
   }
 }
 
 # Virtual Machine 02 (Spoke 2)
-resource "azurerm_windows_virtual_machine" "vm02" {
+resource "azurerm_linux_virtual_machine" "vm02" {
   name                = var.vm02_name
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
   size                = var.vm_size
   admin_username      = var.admin_username
-  admin_password      = var.admin_password
+  disable_password_authentication = true
   network_interface_ids = [
     azurerm_network_interface.vm02_nic.id,
   ]
+
+  admin_ssh_key {
+    username   = var.admin_username
+    public_key = file(var.admin_ssh_public_key_path)
+  }
 
   os_disk {
     caching              = "ReadWrite"
@@ -241,9 +251,9 @@ resource "azurerm_windows_virtual_machine" "vm02" {
   }
 
   source_image_reference {
-    publisher = "MicrosoftWindowsServer"
-    offer     = "WindowsServer"
-    sku       = "2019-Datacenter"
+    publisher = "Canonical"
+    offer     = "0001-com-ubuntu-server-jammy"
+    sku       = "22_04-lts-gen2"
     version   = "latest"
   }
 }
